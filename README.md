@@ -2,9 +2,33 @@
 
 This repo demonstrates timestamp drift between Cartesia's Batch STT API and WebSocket STT API when transcribing the same audio.
 
+## Use Case
+
+I need to use the WebSocket API as a **streaming way to transcribe long audio files** while also obtaining **precise word-level timestamps**. The timestamps are critical for my application (e.g., video subtitle synchronization, audio editing with word-level precision).
+
+**Requirements:**
+- Precise timestamps with drift < 100ms maximum
+- Willing to trade latency for timestamp accuracy if such a parameter existed
+- Need streaming capability for long audio files
+
+Currently, the Batch API provides accurate timestamps but doesn't support streaming. The WebSocket API supports streaming but has severe timestamp drift issues.
+
 ## The Issue
 
 When transcribing identical audio, the WebSocket API returns word timestamps that drift compared to the Batch API (used as ground truth). The drift accumulates and fluctuates unpredictably, sometimes exceeding **2-3 seconds**.
+
+## Technical Details
+
+**Current chunk configuration:**
+- Sample rate: 16,000 Hz
+- Encoding: pcm_f32le (32-bit float)
+- Chunk size: 8,192 samples (~512ms per chunk)
+
+According to general STT best practices, chunk sizes of 100-250ms are typically recommended for streaming. Cartesia's documentation mentions "dynamic chunking" for handling variable-length audio, but doesn't specify optimal chunk sizes for timestamp accuracy.
+
+**Tested but didn't help:**
+- The chunk size used (8192 samples / 512ms) is within reasonable bounds
+- Audio is pre-converted to exact format expected by API (16kHz mono PCM float32)
 
 ## Requirements
 
@@ -73,8 +97,18 @@ Final drift at end of audio: -0.575s
 - Drift oscillates between positive and negative throughout the audio
 - WebSocket timestamps become unreliable for synchronization use cases
 
-The table shows:
-- **Index**: Word position
+## Feature Request
+
+It would be valuable if Cartesia offered a parameter to **prioritize timestamp accuracy over latency** for the WebSocket API. For use cases like:
+- Video/audio editing with word-level synchronization
+- Subtitle generation for long-form content
+- Audio transcription where precise timing matters
+
+A mode that processes audio in larger windows (similar to batch) but still streams results would solve this issue. Even if it added 5-10 seconds of latency, having timestamps with < 100ms drift would be far more useful than the current behavior.
+
+## Table Legend
+
+- **Index**: Word position in transcript
 - **Batch Start**: Timestamp from Batch API (ground truth)
-- **WS Start**: Timestamp from WebSocket API
+- **WS Start**: Timestamp from WebSocket API  
 - **Drift**: Difference (positive = WebSocket later, negative = WebSocket earlier)
