@@ -1,0 +1,10 @@
+{
+  "name": "cartesia-stt-timestamp-repro",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "bun run compare-timestamps.ts"
+  },
+  "dependencies": {
+    "@cartesia/cartesia-js": "^2.2.9"
+  }
+}
