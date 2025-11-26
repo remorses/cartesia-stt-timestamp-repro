@@ -55,10 +55,19 @@ Chunk size doesn't improve timestamp accuracy. Smaller chunks actually made drif
 
 A parameter to **prioritize timestamp accuracy over latency** would solve this. Even 5-10s added latency is acceptable for < 100ms drift.
 
-## Run
+## Reproduce
 
+1. Install Bun
 ```bash
 curl -fsSL https://bun.sh/install | bash
+```
+
+2. Install dependencies
+```bash
 bun install
+```
+
+3. Run the comparison
+```bash
 CARTESIA_API_KEY=your_key bun run start
 ```
