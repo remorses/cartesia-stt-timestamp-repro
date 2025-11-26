@@ -43,6 +43,10 @@ Words with drift >0.1s: 380/1300 (29%)
 Max drift: +1.917s / -5.979s
 ```
 
+### 1s chunks (16000 samples)
+
+**Failed** - WebSocket API returned 0 words. Chunks this large don't work.
+
 ## Conclusion
 
 Chunk size doesn't improve timestamp accuracy. Smaller chunks actually made drift worse in some cases. The issue is fundamental to how the WebSocket API processes streaming audio vs batch post-processing.
