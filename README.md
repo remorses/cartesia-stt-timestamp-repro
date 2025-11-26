@@ -4,12 +4,11 @@ This repo demonstrates timestamp drift between Cartesia's Batch STT API and WebS
 
 ## The Issue
 
-When transcribing identical audio, the WebSocket API returns word timestamps that drift compared to the Batch API (used as ground truth). The drift accumulates over time and can exceed 0.5 seconds.
+When transcribing identical audio, the WebSocket API returns word timestamps that drift compared to the Batch API (used as ground truth). The drift accumulates and fluctuates unpredictably, sometimes exceeding **2-3 seconds**.
 
 ## Requirements
 
 - [Bun](https://bun.sh) runtime
-- ffmpeg (for audio conversion)
 - Cartesia API key
 
 ## Installation
@@ -30,16 +29,16 @@ CARTESIA_API_KEY=your_api_key bun run start
 
 ## Example Output
 
-```
-Converting audio to 16kHz mono WAV...
+11+ minute audio file (1300 words):
 
+```
 Audio Stats:
 - Sample Rate: 16000 Hz
-- Duration: 10.001 s
-- Samples: 160012
+- Duration: 696.367 s
+- Samples: 11141875
 
 [1/2] Running Batch API (Reference)...
-Batch finished. Found 24 words.
+Batch finished. Found 1300 words.
 
 [2/2] Running WebSocket API (Streaming)...
 
@@ -47,27 +46,35 @@ Batch finished. Found 24 words.
 ==========================================================================================
 Index   Word                Batch Start    WS Start       Drift (WS-Batch)    
 ==========================================================================================
-0       Instead             0.300          0.320          +0.020s             
-1       of                  0.480          0.520          +0.040s             
-2       looking             0.660          0.660          0.000s              
-3       up                  0.900          0.900          0.000s              
-4       to                  1.200          1.200          0.000s              
-16      to                  6.000          6.224          +0.224s             
-19      mean,               7.820          8.124          +0.304s             
-20      kids,               8.080          8.644          +0.564s             
-21      Magellan's          8.620          9.304          +0.684s             
-22      a                   9.300          9.484          +0.184s             
-23      lot.                9.480          0.000          ---                 
+0       Hi,                 0.800          0.896          +0.096s             
+1       I'm                 1.180          1.176          -0.004s             
+2       Tommy               1.380          1.376          -0.004s             
+3       and                 1.740          1.736          -0.004s             
+4       today               2.120          2.116          -0.004s             
+18      The                 8.140          9.088          +0.948s             
+35      export.             14.580         15.768         +1.188s             
+73      create              31.955         33.616         +1.661s             
+98      And                 45.870         43.696         -2.174s             
+269     JSEX                127.075        129.012        +1.937s             
+339     screen              165.675        168.496        +2.821s             
+340     sizes.              166.115        168.716        +2.601s             
+...
 ==========================================================================================
-Total Words: 24
-Words with significant drift (>0.1s): 5
-Final drift at end of audio: 0.184s
+Total Words: 1300
+Words with significant drift (>0.1s): 358
+Final drift at end of audio: -0.575s
 ```
+
+## Key Observations
+
+- **358 words** (28%) had drift > 0.1 seconds
+- **Max positive drift**: +2.821s (word "screen" at index 339)
+- **Max negative drift**: -2.174s (word "And" at index 98)
+- Drift oscillates between positive and negative throughout the audio
+- WebSocket timestamps become unreliable for synchronization use cases
 
 The table shows:
 - **Index**: Word position
 - **Batch Start**: Timestamp from Batch API (ground truth)
 - **WS Start**: Timestamp from WebSocket API
-- **Drift**: Difference (positive = WebSocket reports later timestamp)
-
-Words with drift > 0.1s are shown, plus first/last 5 words for context.
+- **Drift**: Difference (positive = WebSocket later, negative = WebSocket earlier)

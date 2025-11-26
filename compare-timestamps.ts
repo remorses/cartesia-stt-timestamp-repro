@@ -1,28 +1,20 @@
 import { CartesiaClient } from '@cartesia/cartesia-js'
 import * as fs from 'fs'
 import * as path from 'path'
-import { exec } from 'child_process'
-import { promisify } from 'util'
 
-const execAsync = promisify(exec)
-
-const audioPath = path.join(import.meta.dir, 'audio.mp3')
-const tempWavPath = path.join(import.meta.dir, 'temp-16k.wav')
+const wavPath = path.join(import.meta.dir, 'audio.wav')
 
 if (!process.env.CARTESIA_API_KEY) {
   console.error('Error: CARTESIA_API_KEY environment variable is required')
   process.exit(1)
 }
 
-if (!fs.existsSync(audioPath)) {
-  console.error('Error: audio.mp3 not found in current directory')
+if (!fs.existsSync(wavPath)) {
+  console.error('Error: audio.wav not found in current directory')
   process.exit(1)
 }
 
-console.log('Converting audio to 16kHz mono WAV...')
-await execAsync(`ffmpeg -y -i "${audioPath}" -ar 16000 -ac 1 -c:a pcm_f32le "${tempWavPath}"`)
-
-const wavFileBuffer = fs.readFileSync(tempWavPath)
+const wavFileBuffer = fs.readFileSync(wavPath)
 const pcmBuffer = wavFileBuffer.subarray(44)
 const channelData = new Float32Array(pcmBuffer.buffer, pcmBuffer.byteOffset, pcmBuffer.byteLength / 4)
 
@@ -34,7 +26,7 @@ console.log(`- Samples: ${channelData.length}`)
 const cartesia = new CartesiaClient({ apiKey: process.env.CARTESIA_API_KEY })
 
 console.log('\n[1/2] Running Batch API (Reference)...')
-const audioFile = Bun.file(tempWavPath)
+const audioFile = Bun.file(wavPath)
 
 const batchResult = await cartesia.stt.transcribe(
   // @ts-ignore
@@ -171,5 +163,4 @@ console.log(`Total Words: ${maxLen}`)
 console.log(`Words with significant drift (>0.1s): ${significantDiffCount}`)
 console.log(`Final drift at end of audio: ${totalDrift.toFixed(3)}s`)
 
-fs.unlinkSync(tempWavPath)
 process.exit(0)
