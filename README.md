@@ -10,46 +10,36 @@ The Batch API has accurate timestamps but doesn't stream. The WebSocket API stre
 
 ## Results
 
-**Audio:** 11 minutes, 1300 words, 16kHz mono PCM float32
+**Audio:** 16 minutes, 2153 words, 16kHz mono PCM float32
 
 ### 512ms chunks (8192 samples)
 
 ```
 Index   Word                Batch Start    WS Start       Drift
-0       Hi,                 0.800          0.896          +0.096s
-18      The                 8.140          9.088          +0.948s
-73      create              31.955         33.616         +1.661s
-98      And                 45.870         43.696         -2.174s
-269     JSEX                127.075        129.012        +1.937s
-339     screen              165.675        168.496        +2.821s
+0       Yo,                 0.240          0.264          +0.024s
+102     And                 43.750         42.024         -1.726s
+153     To                  68.365         66.480         -1.885s
+325     happens             142.335        140.520        -1.815s
+359     Framer              156.785        154.620        -2.165s
+379     having              165.105        162.636        -2.469s
+396     variant.            171.005        168.712        -2.293s
+419     just                183.870        179.660        -4.210s
+443     our                 195.075        192.100        -2.975s
 ================================================================================
-Words with drift >0.1s: 358/1300 (28%)
-Max drift: +2.821s / -2.174s
+Max drift: +0.728s / -4.210s
 ```
 
 ### 100ms chunks (1600 samples)
 
-```
-Index   Word                Batch Start    WS Start       Drift
-0       Hi,                 0.800          0.900          +0.100s
-196     After               93.030         90.592         -2.438s
-324     which               160.395        157.808        -2.587s
-365     So                  183.175        179.664        -3.511s
-381     we                  193.295        189.180        -4.115s
-410     as                  212.675        207.356        -5.319s
-411     a                   213.495        207.516        -5.979s
-================================================================================
-Words with drift >0.1s: 380/1300 (29%)
-Max drift: +1.917s / -5.979s
-```
+Drift worse - up to **-5.979s**
 
 ### 1s chunks (16000 samples)
 
-**Failed** - WebSocket API returned 0 words. Chunks this large don't work.
+**Failed** - WebSocket API returned 0 words.
 
 ## Conclusion
 
-Chunk size doesn't improve timestamp accuracy. Smaller chunks actually made drift worse in some cases. The issue is fundamental to how the WebSocket API processes streaming audio vs batch post-processing.
+Chunk size doesn't improve timestamp accuracy. The issue is fundamental to how the WebSocket API processes streaming audio vs batch post-processing.
 
 ## Feature Request
 
