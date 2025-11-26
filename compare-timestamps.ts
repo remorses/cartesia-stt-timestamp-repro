@@ -47,7 +47,6 @@ const ws = cartesia.stt.websocket({
   language: 'en',
   encoding: 'pcm_f32le',
   sampleRate: 16000,
-
 })
 
 const wsRawWords: any[] = []

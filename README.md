@@ -22,24 +22,35 @@ Index   Word                Batch Start    WS Start       Drift
 325     happens             142.335        140.520        -1.815s
 359     Framer              156.785        154.620        -2.165s
 379     having              165.105        162.636        -2.469s
-396     variant.            171.005        168.712        -2.293s
 419     just                183.870        179.660        -4.210s
-443     our                 195.075        192.100        -2.975s
 ================================================================================
 Max drift: +0.728s / -4.210s
 ```
 
 ### 100ms chunks (1600 samples)
 
-Drift worse - up to **-5.979s**
+```
+Index   Word                Batch Start    WS Start       Drift
+2072    incredibly          933.645        935.760        +2.115s
+2079    new                 938.125        938.820        +0.695s
+2130    down                956.535        958.300        +1.765s
+2149    more                964.455        966.228        +1.773s
+================================================================================
+Words with drift >0.1s: 1595/2153 (74%)
+Max drift: ~+2.1s
+```
 
 ### 1s chunks (16000 samples)
 
 **Failed** - WebSocket API returned 0 words.
 
+### With `minVolume: 0`
+
+**Worse** - 2018/2153 words with drift >0.1s, max drift +3.5s
+
 ## Conclusion
 
-Chunk size doesn't improve timestamp accuracy. The issue is fundamental to how the WebSocket API processes streaming audio vs batch post-processing.
+Chunk size and minVolume don't improve timestamp accuracy. The issue is fundamental to how the WebSocket API processes streaming audio vs batch post-processing.
 
 ## Feature Request
 
@@ -47,17 +58,13 @@ A parameter to **prioritize timestamp accuracy over latency** would solve this. 
 
 ## Reproduce
 
-1. Install Bun
 ```bash
+# 1. Install Bun
 curl -fsSL https://bun.sh/install | bash
-```
 
-2. Install dependencies
-```bash
+# 2. Install dependencies
 bun install
-```
 
-3. Run the comparison
-```bash
+# 3. Run the comparison
 CARTESIA_API_KEY=your_key bun run start
 ```
