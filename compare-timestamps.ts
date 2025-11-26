@@ -94,7 +94,7 @@ await new Promise<void>(async (resolve, reject) => {
   try {
     await ws.connect()
 
-    const chunkSize = 8192
+    const chunkSize = 1600 // 100ms at 16kHz
     for (let i = 0; i < channelData.length; i += chunkSize) {
       const chunk = channelData.slice(i, i + chunkSize)
       await ws.send(chunk.buffer)
