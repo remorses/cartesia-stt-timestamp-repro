@@ -1,2 +1,5 @@
 node_modules
 .env
+.mypy_cache
+.venv
+stt_comparison_analysis.json
